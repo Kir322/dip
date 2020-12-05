@@ -1,0 +1,1 @@
+Download link: https://covid19.gov.ua/analitichni-paneli-dashbordy
