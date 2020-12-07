@@ -50,6 +50,17 @@ def sigmoid_prime(x):
 	s = sigmoid(x)
 	return s*(1-s)
 
+def relu(x):
+	result = np.copy(x)
+	result[result<0] = 0
+	return result
+
+def relu_prime(x):
+	result = np.copy(x)
+	result[result<0] = 0
+	result[result>0] = 1
+	return result
+
 n_samples = X.shape[0]
 
 Z = np.empty(n_samples, dtype=object)
@@ -63,21 +74,23 @@ ANW = []
 
 Y = produce_target_values([L.shape[0], L_unique.shape[0]], L, L_unique)
 
-act       = sigmoid
-act_prime = sigmoid_prime
+act       = relu
+act_prime = relu_prime
 
 cst       = mse
 cst_prime = mse_prime
 
-batch_size = 32
-batch_idx = 0
+batch_size = 23
+batch_idx  = 0
 
 eta = 1
 
-while batch_idx+batch_size<n_samples:
+while batch_idx+batch_size<=n_samples:
 
 	anb = np.array([np.zeros(b.shape) for b in biases],  dtype=object)
 	anw = np.array([np.zeros(w.shape) for w in weights], dtype=object)
+
+	error = 0.0
 
 	for sample_idx in range(batch_size):
 		idx = batch_idx+sample_idx
@@ -98,6 +111,8 @@ while batch_idx+batch_size<n_samples:
 		A[idx] = ais
 
 		y = Y[idx]
+
+		error += cst(y, ais[-1])
 
 		nb = np.empty(biases.shape[0], dtype=object)
 		nw = np.empty(weights.shape[0], dtype=object)
@@ -127,6 +142,8 @@ while batch_idx+batch_size<n_samples:
 
 	for b, accum_b in zip(biases, anb):  b -= eta/batch_size*accum_b
 	for w, accum_w in zip(weights, anw): w -= eta/batch_size*accum_w
+
+	print('Batch {} error: {}'.format(batch_idx%(batch_size-1), error/batch_size))
 
 	batch_idx += batch_size
 
