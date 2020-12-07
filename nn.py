@@ -1,7 +1,10 @@
+import glob
+
 import numpy as np
 import pandas as pd
 
-d = pd.read_csv('data/tests_03_12_20.csv', sep=';', decimal=',', encoding='cp1251', header=None, skiprows=4, nrows=460)
+files = glob.glob('data/tests_*.csv')
+d = pd.concat([pd.read_csv(f, sep=';', decimal=',', encoding='cp1251', header=None, skiprows=4, nrows=460) for f in files])
 
 dd = d.iloc[:, 2:]
 d_norm = (dd-dd.min())/(dd.max()-dd.min())
@@ -74,19 +77,20 @@ ANW = []
 
 Y = produce_target_values([L.shape[0], L_unique.shape[0]], L, L_unique)
 
-act       = relu
-act_prime = relu_prime
+act       = sigmoid
+act_prime = sigmoid_prime
 
 cst       = mse
 cst_prime = mse_prime
 
 batch_size = 23
 batch_idx  = 0
+batch      = 0
 
 eta = 1
 
 while batch_idx+batch_size<=n_samples:
-
+	
 	anb = np.array([np.zeros(b.shape) for b in biases],  dtype=object)
 	anw = np.array([np.zeros(w.shape) for w in weights], dtype=object)
 
@@ -143,9 +147,10 @@ while batch_idx+batch_size<=n_samples:
 	for b, accum_b in zip(biases, anb):  b -= eta/batch_size*accum_b
 	for w, accum_w in zip(weights, anw): w -= eta/batch_size*accum_w
 
-	print('Batch {} error: {}'.format(batch_idx%(batch_size-1), error/batch_size))
+	print('Batch {} error: {}'.format(batch, error/batch_size))
 
 	batch_idx += batch_size
+	batch     += 1
 
 n_left = n_samples-batch_idx
 
